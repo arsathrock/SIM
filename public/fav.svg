@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" fill="#FFFFFF"/>
+  <!-- Outer Red Box Frame -->
+  <rect x="72" y="36" width="368" height="440" fill="none" stroke="#EE2B2E" stroke-width="48"/>
+  <!-- Top-Right to Center-Left Diagonal -->
+  <line x1="396" y1="126" x2="118" y2="256" stroke="#EE2B2E" stroke-width="48" stroke-linecap="square"/>
+  <!-- Bottom-Right to Center-Left Diagonal -->
+  <line x1="396" y1="386" x2="118" y2="256" stroke="#EE2B2E" stroke-width="48" stroke-linecap="square"/>
+</svg>

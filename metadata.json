@@ -1,0 +1,6 @@
+{
+  "name": "SIM",
+  "description": "SIM (Student Intelligence Momentum) is a premium, modern, AI-powered student companion application that helps students build momentum throughout their college journey.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
