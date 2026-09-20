@@ -4,7 +4,7 @@ import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
 
 const app = express();
-const PORT = 3000;
+const DEFAULT_PORT = Number(process.env.PORT || 3000);
 
 app.use(express.json());
 
@@ -204,9 +204,29 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`SIM server running on http://localhost:${PORT}`);
-  });
+  const listenOnPort = (port: number): Promise<number> => {
+    return new Promise((resolve, reject) => {
+      const server = app.listen(port, "0.0.0.0", () => {
+        console.log(`SIM server running on http://localhost:${port}`);
+        resolve(port);
+      });
+
+      server.on("error", (error: NodeJS.ErrnoException) => {
+        if (error.code === "EADDRINUSE") {
+          const nextPort = port + 1;
+          console.warn(`Port ${port} is busy. Retrying on ${nextPort}...`);
+          listenOnPort(nextPort)
+            .then(resolve)
+            .catch(reject);
+          return;
+        }
+
+        reject(error);
+      });
+    });
+  };
+
+  await listenOnPort(DEFAULT_PORT);
 }
 
 startServer();
