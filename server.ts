@@ -1,7 +1,9 @@
+import "dotenv/config";
 import express from "express";
 import path from "path";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
+import connectDB from "./config/db";
 
 const app = express();
 const DEFAULT_PORT = Number(process.env.PORT || 3000);
@@ -229,4 +231,51 @@ async function startServer() {
   await listenOnPort(DEFAULT_PORT);
 }
 
+import StudentProfile from "./models/StudentProfile";
+
+
+app.post("/api/students", async(req,res)=>{
+
+    try{
+
+        const student =
+        await StudentProfile.create(req.body);
+
+
+        res.status(201).json(student);
+
+
+    }catch(error){
+
+        res.status(500).json({
+            message:"Error saving student"
+        });
+
+    }
+
+});
+
+
+app.get("/api/students", async(req,res)=>{
+
+    try{
+
+        const students =
+        await StudentProfile.find();
+
+
+        res.json(students);
+
+
+    }catch(error){
+
+        res.status(500).json({
+            message:"Error fetching students"
+        });
+
+    }
+
+});
+
 startServer();
+connectDB();
