@@ -5,6 +5,9 @@ import { GoogleGenAI } from "@google/genai";
 import connectDB from "./config/db";
 import StudentProfile from "./models/StudentProfile";
 import Attendance from "./models/Attendance";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import User from "./models/User";
 
 const app = express();
 const DEFAULT_PORT = Number(process.env.PORT || 3000);
@@ -145,6 +148,92 @@ app.delete("/api/students/:id", async (req, res) => {
       message: "Error deleting student",
     });
   }
+});
+
+
+// Login Student User
+
+app.post("/api/auth/login", async(req,res)=>{
+
+    try{
+
+
+        const {username,password}=req.body;
+
+
+        const user = await User.findOne({
+            username
+        });
+
+
+        if(!user){
+
+            return res.status(404).json({
+
+                message:"User not found"
+
+            });
+
+        }
+
+
+
+        const isPasswordCorrect =
+        await bcrypt.compare(
+            password,
+            user.password
+        );
+
+
+
+        if(!isPasswordCorrect){
+
+            return res.status(401).json({
+
+                message:"Invalid password"
+
+            });
+
+        }
+
+
+
+        const token = jwt.sign(
+
+            {
+                id:user._id,
+                username:user.username
+            },
+
+            "SIM_SECRET_KEY",
+
+            {
+                expiresIn:"1d"
+            }
+
+        );
+
+
+
+        res.json({
+
+            message:"Login successful",
+            token
+
+        });
+
+
+
+    }catch(error){
+
+        res.status(500).json({
+
+            message:"Login failed"
+
+        });
+
+    }
+
 });
 
 function getGeminiClient() {
@@ -348,6 +437,59 @@ async function startServer() {
 
   await listenOnPort(DEFAULT_PORT);
 }
+
+
+// Register Student User
+
+app.post("/api/auth/register", async(req,res)=>{
+
+    try{
+
+        const {username,password}=req.body;
+
+
+        const existingUser = await User.findOne({username});
+
+
+        if(existingUser){
+
+            return res.status(400).json({
+                message:"Username already exists"
+            });
+
+        }
+
+
+        const hashedPassword = await bcrypt.hash(password,10);
+
+
+        const user = await User.create({
+
+            username,
+            password:hashedPassword
+
+        });
+
+
+        res.status(201).json({
+
+            message:"User registered successfully",
+            user
+
+        });
+
+
+    }catch(error){
+
+        res.status(500).json({
+
+            message:"Registration failed"
+
+        });
+
+    }
+
+});
 
 async function initializeServer() {
   try {
