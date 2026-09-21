@@ -86,6 +86,66 @@ app.put("/api/students/:id", async (req, res) => {
   }
 });
 
+// UPDATE STUDENT API (PUT)
+app.put("/api/students/:id", async (req, res) => {
+  try {
+    const updatedStudent = await StudentProfile.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      {
+        new: true, // returns updated document
+        runValidators: true,
+      }
+    );
+
+    if (!updatedStudent) {
+      return res.status(404).json({
+        message: "Student not found",
+      });
+    }
+
+    res.json({
+      message: "Student updated successfully",
+      student: updatedStudent,
+    });
+
+  } catch (error) {
+    console.error("Update error:", error);
+
+    res.status(500).json({
+      message: "Error updating student",
+    });
+  }
+});
+
+
+// DELETE STUDENT API (DELETE)
+app.delete("/api/students/:id", async (req, res) => {
+  try {
+    const deletedStudent = await StudentProfile.findByIdAndDelete(
+      req.params.id
+    );
+
+    if (!deletedStudent) {
+      return res.status(404).json({
+        message: "Student not found",
+      });
+    }
+
+    res.json({
+      message: "Student deleted successfully",
+      student: deletedStudent,
+    });
+
+  } catch (error) {
+    console.error("Delete error:", error);
+
+    res.status(500).json({
+      message: "Error deleting student",
+    });
+  }
+});
+
 function getGeminiClient() {
   if (!genAIClient) {
     const apiKey = process.env.GEMINI_API_KEY;
