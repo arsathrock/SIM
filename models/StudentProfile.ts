@@ -1,61 +1,58 @@
 import mongoose from "mongoose";
 
-const StudentProfileSchema = new mongoose.Schema(
-  {
-    name: {
-      type: String,
-      required: true,
-      trim: true,
+
+const studentProfileSchema = new mongoose.Schema({
+
+    name:{
+        type:String,
+        required:true
     },
 
-    becoming: {
-      type: String,
-      required: true,
+    becoming:{
+        type:String
     },
 
-    fear: {
-      type: String,
-      required: true,
+    fear:{
+        type:String
     },
 
-    stoppedBy: {
-      type: String,
-      required: true,
+    stoppedBy:{
+        type:String
     },
 
-    studentType: {
-      type: String,
-      required: true,
+    studentType:{
+        type:String
     },
 
-    realizationTrigger: {
-      type: String,
-      required: true,
+    realizationTrigger:{
+        type:String
     },
 
-    dream: {
-      type: String,
-      required: true,
+    dream:{
+        type:String
     },
 
-    quote: {
-      type: String,
-      required: true,
+    quote:{
+        type:String
     },
 
-    firstVictory: {
-      type: String,
-      default: "",
+
+    firstVictory:{
+        type:String
     },
 
-    coreDrive: {
-      type: String,
-      default: "",
-    },
-  },
-  {
-    timestamps: true,
-  }
+
+    coreDrive:{
+        type:String
+    }
+
+});
+
+
+const StudentProfile = mongoose.model(
+    "StudentProfile",
+    studentProfileSchema
 );
 
-export default mongoose.model("StudentProfile", StudentProfileSchema);
+
+export default StudentProfile;
