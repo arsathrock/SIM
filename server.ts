@@ -49,6 +49,43 @@ app.post("/api/students", async (req, res) => {
   }
 });
 
+// PUT API - Update Student Profile
+
+app.put("/api/students/:id", async (req, res) => {
+  try {
+
+    const updatedStudent = await StudentProfile.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      {
+        new: true,
+        runValidators: true
+      }
+    );
+
+
+    if (!updatedStudent) {
+      return res.status(404).json({
+        message: "Student not found"
+      });
+    }
+
+
+    res.json({
+      message: "Student updated successfully",
+      student: updatedStudent
+    });
+
+
+  } catch (error) {
+
+    res.status(500).json({
+      message: "Error updating student"
+    });
+
+  }
+});
+
 function getGeminiClient() {
   if (!genAIClient) {
     const apiKey = process.env.GEMINI_API_KEY;
