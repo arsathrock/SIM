@@ -4,6 +4,7 @@ import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
 import connectDB from "./config/db";
 import StudentProfile from "./models/StudentProfile";
+import Attendance from "./models/Attendance";
 
 const app = express();
 const DEFAULT_PORT = Number(process.env.PORT || 3000);
