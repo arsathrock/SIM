@@ -2,6 +2,8 @@ import express from "express";
 import path from "path";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
+import connectDB from "./config/db";
+import StudentProfile from "./models/StudentProfile";
 
 const app = express();
 const DEFAULT_PORT = Number(process.env.PORT || 3000);
@@ -10,6 +12,30 @@ app.use(express.json());
 
 // Lazy-loaded Gemini AI client to avoid crashes if GEMINI_API_KEY is not yet present
 let genAIClient: GoogleGenAI | null = null;
+
+app.get("/api/students/:id", async (req, res) => {
+  try {
+    const student = await StudentProfile.findById(req.params.id);
+
+    if (!student) {
+      return res.status(404).json({
+        message: "Student not found",
+      });
+    }
+
+    res.json(student);
+  } catch (error) {
+    if (error instanceof Error && error.name === "CastError") {
+      return res.status(400).json({
+        message: "Invalid student id",
+      });
+    }
+
+    res.status(500).json({
+      message: "Error fetching student",
+    });
+  }
+});
 
 function getGeminiClient() {
   if (!genAIClient) {
@@ -32,7 +58,7 @@ function getGeminiClient() {
 // 1. Jarvis Chat endpoint
 app.post("/api/jarvis/chat", async (req, res) => {
   try {
-    const { message, profile, currentStats, chatHistory } = req.body;
+    const { message, profile, currentStats } = req.body;
     const ai = getGeminiClient();
 
     const systemInstruction = `
@@ -61,22 +87,6 @@ Current Live Statistics of the student in SIM:
 
 Provide structured, clean responses in Markdown. Keep your message under 3 paragraphs unless answering a detailed inquiry. Focus on guiding their momentum, offering predictive insights (e.g. "If you maintain this attendance level, you are projected to face a shortage before final exams. Let's adjust this tomorrow.") and suggesting next small actions.
 `;
-
-    // Map chat history format to what content generation expects if needed, or send as standard chat
-    const chat = ai.chats.create({
-      model: "gemini-3.5-flash",
-      config: {
-        systemInstruction,
-        temperature: 0.7,
-      }
-    });
-
-    // Populate chat history
-    if (chatHistory && Array.isArray(chatHistory)) {
-      // Create contents array for full generateContent or pre-populate.
-      // But standard chat in @google/genai works best with linear sends or message history setup.
-      // Let's simply include recent history in the contents parameter to keep it clean and robust.
-    }
 
     const response = await ai.models.generateContent({
       model: "gemini-3.5-flash",
@@ -229,4 +239,14 @@ async function startServer() {
   await listenOnPort(DEFAULT_PORT);
 }
 
-startServer();
+async function initializeServer() {
+  try {
+    await connectDB();
+    await startServer();
+  } catch (error) {
+    console.error("Failed to start server:", error);
+    process.exit(1);
+  }
+}
+
+initializeServer();
