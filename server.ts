@@ -37,6 +37,18 @@ app.get("/api/students/:id", async (req, res) => {
   }
 });
 
+app.post("/api/students", async (req, res) => {
+  try {
+    const student = await StudentProfile.create(req.body);
+
+    res.status(201).json(student);
+  } catch (error) {
+    res.status(500).json({
+      message: "Error saving student",
+    });
+  }
+});
+
 function getGeminiClient() {
   if (!genAIClient) {
     const apiKey = process.env.GEMINI_API_KEY;
