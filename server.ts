@@ -8,6 +8,7 @@ import Attendance from "./models/Attendance";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from "./models/User";
+import authMiddleware from "./middleware/auth";
 
 const app = express();
 const DEFAULT_PORT = Number(process.env.PORT || 3000);
@@ -233,6 +234,23 @@ app.post("/api/auth/login", async(req,res)=>{
         });
 
     }
+
+});
+
+app.get(
+"/api/profile",
+authMiddleware,
+async(req,res)=>{
+
+
+    res.json({
+
+        message:"Protected Profile Data",
+
+        user:(req as any).user
+
+    });
+
 
 });
 
